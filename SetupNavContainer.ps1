@@ -82,7 +82,7 @@ Log "Locale $locale"
 $securePassword = ConvertTo-SecureString -String $adminPassword -Key $passwordKey
 $credential = New-Object System.Management.Automation.PSCredential($navAdminUsername, $securePassword)
 $azureSqlCredential = New-Object System.Management.Automation.PSCredential($azureSqlAdminUsername, $securePassword)
-$params = @{ "enableSymbolLoading" = $true 
+$params = @{ "enableSymbolLoading" = $false 
              "licensefile" = "$licensefileuri"
              "publishPorts" = @(8080,443,7046,7047,7048,7049)
              "publicDnsName" = $publicDnsName }
