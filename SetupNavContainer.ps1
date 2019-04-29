@@ -82,8 +82,7 @@ Log "Locale $locale"
 $securePassword = ConvertTo-SecureString -String $adminPassword -Key $passwordKey
 $credential = New-Object System.Management.Automation.PSCredential($navAdminUsername, $securePassword)
 $azureSqlCredential = New-Object System.Management.Automation.PSCredential($azureSqlAdminUsername, $securePassword)
-$params = @{ "enableSymbolLoading" = $false 
-             "licensefile" = "$licensefileuri"
+$params = @{ "licensefile" = "$licensefileuri"
              "publishPorts" = @(8080,443,7046,7047,7048,7049)
              "publicDnsName" = $publicDnsName }
 
@@ -111,6 +110,10 @@ if ("$enableTaskScheduler" -eq "Yes") {
     $additionalParameters += @("--env CustomNavSettings=EnableTaskScheduler=true")
 } elseif ("$enableTaskScheduler" -eq "No") {
     $additionalParameters += @("--env CustomNavSettings=EnableTaskScheduler=false")
+}
+
+if ($enableSymbolLoading -eq "Yes") {
+    $params += @{ "enableSymbolLoading" = $true }
 }
 
 if ($multitenant -eq "Yes") {
@@ -188,8 +191,12 @@ if ($sqlServerType -eq "AzureSQL") {
         Log "Importing c:\demo\objects.fob to container"
         Import-ObjectsToNavContainer -containerName $containerName -objectsFile "c:\demo\objects.fob" -sqlCredential $azureSqlCredential
     }
-    New-NavContainerTenant -containerName $containerName -tenantId "default" -sqlCredential $azureSqlCredential
-    New-NavContainerNavUser -containerName $containerName -tenant "default" -Credential $credential -AuthenticationEmail $Office365UserName -ChangePasswordAtNextLogOn:$false -PermissionSetId "SUPER"
+    # Check for Multitenant & Included "-ErrorAction Continue" to prevent an exit
+    if ($multitenant -eq "Yes") {
+        New-NavContainerTenant -containerName $containerName -tenantId "default" -sqlCredential $azureSqlCredential -ErrorAction Continue
+    }    
+    # Included "-ErrorAction Continue" to prevent an exit
+    New-NavContainerNavUser -containerName $containerName -tenant "default" -Credential $credential -AuthenticationEmail $Office365UserName -ChangePasswordAtNextLogOn:$false -PermissionSetId "SUPER" -ErrorAction Continue
 } else {
     if (Test-Path "c:\demo\objects.fob" -PathType Leaf) {
         Log "Importing c:\demo\objects.fob to container"
