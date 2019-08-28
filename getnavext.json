@@ -363,7 +363,7 @@
         "CertificatePfxPassword": "[parameters('CertificatePfxPassword')]",
         "PublicDnsName": "[parameters('PublicDnsName')]",
         "Multitenant": "[parameters('Multitenant')]",
-        "AssignPremiumPlan": "No",
+        "AssignPremiumPlan": "Yes",
         "CreateTestUsers": "No",
         "CreateAadUsers": "[parameters('CreateAadUsers')]",
         "EnableSymbolLoading": "[parameters('EnableSymbolLoading')]",
